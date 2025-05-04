@@ -37,21 +37,14 @@ import javax.ws.rs.core.Response;
 public class AuthorResource 
 {
     
-    protected static final ConcurrentHashMap<String, Authors> authorList = new ConcurrentHashMap<>();
-    protected static final ConcurrentHashMap<String, Books> extractedBookList = BookResource.getBookList();
+    private static final ConcurrentHashMap<String, Authors> extractedAuthorList = DefaultDataStore.getAuthorList();
+    private static final ConcurrentHashMap<String, Books> extractedBookList = DefaultDataStore.getBookList();
     
     
-    
-    public static ConcurrentHashMap<String, Authors> getAuthorList()
-    {
-        return authorList;
-    }
-    
-    
-    
+
     static 
     {
-        DefaultDataStore.addDefaultAuthorsToList(authorList, extractedBookList);
+        DefaultDataStore.addDefaultAuthorsToList(extractedAuthorList, extractedBookList);
     }
     
  
@@ -60,13 +53,13 @@ public class AuthorResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllAuthors()
     {
-        if (authorList.isEmpty())
+        if (extractedAuthorList.isEmpty())
         {
             throw new AuthorNotFoundException("NO AUTHORS FOUND");
             // return Response.status(Response.Status.NOT_FOUND).entity("NO AUTHORS FOUND").build();
         }
         
-        ArrayList<Authors> allAuthors = new ArrayList<>(authorList.values());
+        ArrayList<Authors> allAuthors = new ArrayList<>(extractedAuthorList.values());
         return Response.ok(allAuthors).build();
     }
     
@@ -78,7 +71,7 @@ public class AuthorResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAuthorById(@PathParam("id") String authorId)
     {
-        Authors author = authorList.get(authorId);
+        Authors author = extractedAuthorList.get(authorId);
         
         if(author != null)
         {
@@ -98,7 +91,7 @@ public class AuthorResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAuthorBooksById(@PathParam("id") String authorId) 
     {
-        Authors author = authorList.get(authorId);
+        Authors author = extractedAuthorList.get(authorId);
 
         if (author == null) 
         {
@@ -141,7 +134,7 @@ public class AuthorResource
         
         newAuthorDetails.setAuthorId(newAuthorId);
         
-        authorList.put(newAuthorId, newAuthorDetails);
+        extractedAuthorList.put(newAuthorId, newAuthorDetails);
         
         ApiResponse response = new ApiResponse("NEW AUTHOR SUCCESSFULLY REGISTERED", newAuthorDetails);
         return Response.status(Response.Status.CREATED).entity(response).build();
@@ -156,7 +149,7 @@ public class AuthorResource
     public Response updateAuthorDetails(@PathParam("id") String authorId, Authors updatedAuthorDetails)
     {
         
-        Authors existingAuthorDetails = authorList.get(authorId);
+        Authors existingAuthorDetails = extractedAuthorList.get(authorId);
         if(existingAuthorDetails == null)
         {
             throw new AuthorNotFoundException("AUTHOR NOT FOUND. INVALID AUTHOR ID: " + authorId);
@@ -192,7 +185,7 @@ public class AuthorResource
     @Path("/{id}")
     public Response deleteAuthor(@PathParam("id") String authorId)
     {
-        if(authorList.remove(authorId) != null)
+        if(extractedAuthorList.remove(authorId) != null)
         {
             return Response.status(Response.Status.OK).entity("AUTHOR ID : " + authorId + " DELETED").build();
         }
@@ -202,7 +195,5 @@ public class AuthorResource
             // return Response.status(Response.Status.NOT_FOUND).entity("AUTHOR ID : " + authorId + " NOT FOUND").build();
         }
     }
-    
-    
     
 }

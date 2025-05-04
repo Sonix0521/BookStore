@@ -6,8 +6,12 @@ package com.bookstore.bookstore.utilities;
 
 import com.bookstore.bookstore.model.Authors;
 import com.bookstore.bookstore.model.Books;
+import com.bookstore.bookstore.model.Cart;
 import com.bookstore.bookstore.model.Customers;
+import com.bookstore.bookstore.model.Orders;
+
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -15,7 +19,35 @@ import java.util.Map;
  */
 public class DefaultDataStore 
 {
-    
+    private static final ConcurrentHashMap<String, Authors> authorList = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Books> bookList = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Customers> customerList = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Cart> cartListForCustomersCartItems = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Orders> customersOrdersList = new ConcurrentHashMap<>();
+
+
+
+    public static ConcurrentHashMap<String, Authors> getAuthorList()
+    {
+        return authorList;
+    }
+    public static ConcurrentHashMap<String, Books> getBookList()
+    {
+        return bookList;
+    }
+    public static ConcurrentHashMap<String, Customers> getCustomerList()
+    {
+        return customerList;
+    }
+    public static ConcurrentHashMap<String, Cart> getCartItemsList()
+    {
+        return cartListForCustomersCartItems;
+    }
+    public static ConcurrentHashMap<String, Orders> getOrdersList()
+    {
+        return customersOrdersList;
+    }
+
     
     
     public static void addDefaultAuthorsToList(Map<String, Authors> defaultAuthorList, Map<String, Books> defaultBookList)
@@ -24,7 +56,6 @@ public class DefaultDataStore
         Authors author1 = new Authors("F. Scott Fitzgerald", "American novelist best known for 'The Great Gatsby', a classic of 20th-century literature.");
         Authors author2 = new Authors("George Orwell", "English novelist famous for his dystopian works '1984' and 'Animal Farm'.");
         Authors author3 = new Authors("Harper Lee", "American author best known for 'To Kill a Mockingbird', a novel that explores racial injustice in the Deep South.");
-
 
         defaultAuthorList.put(author1.getAuthorId(), author1);
         defaultAuthorList.put(author2.getAuthorId(), author2);
@@ -65,8 +96,5 @@ public class DefaultDataStore
         defaultBookList.put(book1.getBookId(), book1);
         defaultBookList.put(book2.getBookId(), book2);
     }
-    
-    
-    
     
 }

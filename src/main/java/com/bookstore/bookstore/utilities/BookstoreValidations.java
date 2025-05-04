@@ -8,9 +8,7 @@ import com.bookstore.bookstore.model.Authors;
 import com.bookstore.bookstore.model.Books;
 import com.bookstore.bookstore.model.Cart;
 import com.bookstore.bookstore.model.Customers;
-import com.bookstore.bookstore.resources.AuthorResource;
-import com.bookstore.bookstore.resources.BookResource;
-import com.bookstore.bookstore.resources.CustomerResource;
+
 import java.util.Map;
 import javax.ws.rs.core.Response;
 import java.time.Year;
@@ -22,9 +20,9 @@ import java.time.Year;
 public class BookstoreValidations 
 {
     
-    private static final Map<String, Customers> customerList = CustomerResource.getCustomerList();
-    private static final Map<String, Authors> authorList = AuthorResource.getAuthorList();
-    private static final Map<String, Books> bookList = BookResource.getBookList();
+    private static final Map<String, Customers> extractedCustomerList = DefaultDataStore.getCustomerList();
+    private static final Map<String, Authors> extractedAuthorList = DefaultDataStore.getAuthorList();
+    private static final Map<String, Books> extractedBookList = DefaultDataStore.getBookList();
     
  
     
@@ -80,7 +78,7 @@ public class BookstoreValidations
         {
             if (customerDetails.getCustomerEmail() != null)
             {
-                for(Customers existingCustomer : customerList.values())
+                for(Customers existingCustomer : extractedCustomerList.values())
                 {
                     if( existingCustomer.getCustomerName().equalsIgnoreCase(customerDetails.getCustomerName()) &&
                         existingCustomer.getCustomerEmail().equalsIgnoreCase(customerDetails.getCustomerEmail()) )
@@ -132,6 +130,8 @@ public class BookstoreValidations
     {
         
         private static int currentYear = Year.now().getValue();    
+        
+
         
         public static StringBuilder generateUpdateMessage(Books updatedBooksDetails, Books existingBookDetails) 
         {
@@ -276,7 +276,7 @@ public class BookstoreValidations
                 {
                     String toBeUpdatedAuthorId = bookDetails.getBookAuthorId();
 
-                    if(!BookResource.extractedAuthorList.containsKey(toBeUpdatedAuthorId))
+                    if(!extractedAuthorList.containsKey(toBeUpdatedAuthorId))
                     {
                         return Response.status(Response.Status.NOT_FOUND).entity("AUTHOR NOT FOUND. INVALID AUTHOR ID : " + toBeUpdatedAuthorId).build();
                     }
@@ -290,7 +290,7 @@ public class BookstoreValidations
 
                     existingBookDetails.setBookAuthorId(toBeUpdatedAuthorId);
 
-                    String authorName = BookResource.extractedAuthorList.get(toBeUpdatedAuthorId).getAuthorName();
+                    String authorName = extractedAuthorList.get(toBeUpdatedAuthorId).getAuthorName();
                     existingBookDetails.setBookAuthorName(authorName);
                 }
 
@@ -332,7 +332,7 @@ public class BookstoreValidations
 
             boolean isPost = "POST".equalsIgnoreCase(method);
 
-            for(Books existingBooks : bookList.values())
+            for(Books existingBooks : extractedBookList.values())
             {
                 // Check for duplicate values based on title, ISBN, and published year
                 boolean isDuplicate =   ( existingBooks.getBookTitle().equalsIgnoreCase(bookDetails.getBookTitle()) ) &&
@@ -396,7 +396,7 @@ public class BookstoreValidations
     
         public static Response checkForDuplicateAuthor(Authors authorDetails) 
         {    
-            for(Authors existingAuthors : authorList.values())
+            for(Authors existingAuthors : extractedAuthorList.values())
             {
                 boolean sameAuthorName = existingAuthors.getAuthorName().equalsIgnoreCase(authorDetails.getAuthorName());
                 boolean sameAuthorBio = existingAuthors.getAuthorBiography().equalsIgnoreCase(authorDetails.getAuthorBiography());
@@ -483,6 +483,5 @@ public class BookstoreValidations
         }
         
     }
-    
     
 }

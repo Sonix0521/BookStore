@@ -30,21 +30,14 @@ import javax.ws.rs.core.Response;
 @Path("/customers")
 public class CustomerResource 
 {
-    
-    private static final ConcurrentHashMap<String, Customers> customerList = new ConcurrentHashMap<>();
-    
-    
-    
-    public static ConcurrentHashMap<String, Customers> getCustomerList()
-    {
-        return customerList;
-    }
+
+    private static final ConcurrentHashMap<String, Customers> extractedCustomerList = DefaultDataStore.getCustomerList();
     
     
     
     static 
     {
-        DefaultDataStore.addDefaultCustomersToList(customerList);
+        DefaultDataStore.addDefaultCustomersToList(extractedCustomerList);
     }
 
 
@@ -53,13 +46,12 @@ public class CustomerResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCustomerDetails()
     {
-        if (customerList.isEmpty() || customerList == null)
+        if (extractedCustomerList.isEmpty() || extractedCustomerList == null)
         {
             throw new CustomerNotFoundException("NO CUSTOMERS AVAILABLE");
-//            return Response.status(Response.Status.NOT_FOUND).entity("NO CUSTOMERS FOUND").build();
         }
         
-        ArrayList<Customers> allCustomers = new ArrayList<>(customerList.values());
+        ArrayList<Customers> allCustomers = new ArrayList<>(extractedCustomerList.values());
         return Response.ok(allCustomers).build();
     }
     
@@ -70,7 +62,7 @@ public class CustomerResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCustomerById(@PathParam("id") String customerId)
     {
-        Customers customer = customerList.get(customerId);
+        Customers customer = extractedCustomerList.get(customerId);
         
         if(customer != null)
         {
@@ -79,7 +71,6 @@ public class CustomerResource
         else
         {
             throw new CustomerNotFoundException("CUSTOMER NOT FOUND. \nINVALID CUSTOMER ID : " + customerId);
-//            return Response.status(Response.Status.NOT_FOUND).entity("CUSTOMER NOT FOUND. \nINVALID CUSTOMER ID : " + customerId).build();
         }
     }
     
@@ -109,7 +100,7 @@ public class CustomerResource
         
         newCustomerDetails.setCustomerId(newCustomerId);
         
-        customerList.put(newCustomerId, newCustomerDetails);
+        extractedCustomerList.put(newCustomerId, newCustomerDetails);
         
         ApiResponse response = new ApiResponse("NEW CUSTOMER SUCCESSFULLY REGISTERED", newCustomerDetails);
         return Response.status(Response.Status.CREATED).entity(response).build();
@@ -124,11 +115,10 @@ public class CustomerResource
     public Response updateAuthorDetails(@PathParam("id") String customerId, Customers updatedCustomerDetails)
     {
         
-        Customers existingAuthorDetails = customerList.get(customerId);
+        Customers existingAuthorDetails = extractedCustomerList.get(customerId);
         if(existingAuthorDetails == null)
         {
             throw new CustomerNotFoundException("CUSTOMER NOT FOUND. INVALID CUSTOMER ID: " + customerId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("CUSTOMER NOT FOUND. \nINVALID CUSTOMER ID : " + customerId).build();
         }
         
         StringBuilder errorMessage = BookstoreValidations.CustomerValidator.validateCustomerDetails(updatedCustomerDetails, "PUT");
@@ -157,14 +147,13 @@ public class CustomerResource
     @Path("/{id}")
     public Response deleteCustomer(@PathParam("id") String customerId)
     {
-        if(customerList.remove(customerId) != null)
+        if(extractedCustomerList.remove(customerId) != null)
         {
             return Response.status(Response.Status.OK).entity("CUSTOMER ID : " + customerId + " DELETED").build();
         }
         else
         {
             throw new CustomerNotFoundException("CUSTOMER NOT FOUND. \nINVALID CUSTOMER ID : " + customerId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("CUSTOMER NOT FOUND. \nINVALID CUSTOMER ID : " + customerId).build();
         }
     }
         

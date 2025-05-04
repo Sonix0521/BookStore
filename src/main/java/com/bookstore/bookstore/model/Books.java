@@ -1,6 +1,6 @@
 package com.bookstore.bookstore.model;
 
-import com.bookstore.bookstore.resources.BookResource;
+import com.bookstore.bookstore.utilities.DefaultDataStore;
 import java.util.Map;
 import java.util.UUID;
 
@@ -65,7 +65,7 @@ public class Books
     
     public String getBookTitleByBookId(String bookId)
     {
-        Map<String, Books> extractedBookList = BookResource.getBookList();
+        Map<String, Books> extractedBookList = DefaultDataStore.getBookList();
         for (Books bookItem : extractedBookList.values())
         {
             if(bookItem.getBookId().equals(bookId))

@@ -38,21 +38,14 @@ import javax.ws.rs.core.Response;
 public class BookResource 
 {
     
-    private static final ConcurrentHashMap<String, Books> bookList = new ConcurrentHashMap<>();
-    public static final ConcurrentHashMap<String, Authors> extractedAuthorList = AuthorResource.getAuthorList();
-    
-    
-    
-    public static ConcurrentHashMap<String, Books> getBookList()
-    {
-        return bookList;
-    }
-        
-        
+    private static final ConcurrentHashMap<String, Authors> extractedAuthorList = DefaultDataStore.getAuthorList();
+    private static final ConcurrentHashMap<String, Books> extractedBookList = DefaultDataStore.getBookList();
+
+
         
     static 
     {
-        DefaultDataStore.addDefaultBooksToList(bookList, extractedAuthorList);
+        DefaultDataStore.addDefaultBooksToList(extractedBookList, extractedAuthorList);
     }
     
     
@@ -61,13 +54,13 @@ public class BookResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllBooks()
     {
-        if (bookList.isEmpty())
+        if (extractedBookList.isEmpty())
         {
             // return Response.status(Response.Status.NOT_FOUND).entity("NO BOOKS AVAILABLE.").build();
             throw new BookNotFoundException("NO BOOKS AVAILABLE.");
         }
         
-        ArrayList<Books> allBooks = new ArrayList<>(bookList.values());
+        ArrayList<Books> allBooks = new ArrayList<>(extractedBookList.values());
         return Response.ok(allBooks).build();
     }
     
@@ -79,7 +72,7 @@ public class BookResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBookById(@PathParam("id") String bookId)
     {
-        Books book = bookList.get(bookId);
+        Books book = extractedBookList.get(bookId);
         
         if(book != null)
         {
@@ -125,7 +118,7 @@ public class BookResource
         String newBookId = UUID.randomUUID().toString().substring(0,8);
         newBookDetails.setBookId(newBookId);
         
-        bookList.put(newBookId, newBookDetails);
+        extractedBookList.put(newBookId, newBookDetails);
         
         ApiResponse response = new ApiResponse("NEW BOOK SUCCESSFULLY REGISTERED", newBookDetails);
         return Response.status(Response.Status.CREATED).entity(response).build();
@@ -140,7 +133,7 @@ public class BookResource
     public Response updateBookDetails(@PathParam("id") String bookId, Books toBeUpdatedBookDetails)
     {
         
-        Books existingBookDetails = bookList.get(bookId);        
+        Books existingBookDetails = extractedBookList.get(bookId);        
         if(existingBookDetails == null)
         {
             throw new BookNotFoundException("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId);
@@ -172,19 +165,16 @@ public class BookResource
     
     @DELETE
     @Path("/{id}")
-    public Response deleteCustomer(@PathParam("id") String bookId)
+    public Response deleteBook(@PathParam("id") String bookId)
     {
-        if(bookList.remove(bookId) != null)
+        if(extractedBookList.remove(bookId) != null)
         {
             return Response.status(Response.Status.OK).entity("BOOK ID : " + bookId + " DELETED").build();
         }
         else
         {
             throw new BookNotFoundException("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId).build();
         }
     }
-    
-    
     
 }

@@ -12,6 +12,8 @@ import com.bookstore.bookstore.model.Cart;
 import com.bookstore.bookstore.model.CartItem;
 import com.bookstore.bookstore.model.Customers;
 import com.bookstore.bookstore.utilities.BookstoreValidations;
+import com.bookstore.bookstore.utilities.DefaultDataStore;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Consumes;
@@ -33,17 +35,10 @@ import javax.ws.rs.core.Response;
 public class CartResource 
 {
     
-    private static final ConcurrentHashMap<String, Cart> cartListForCustomersCartItems = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, Customers> extractedCustomerList = CustomerResource.getCustomerList();
-    private static final ConcurrentHashMap<String, Books> extractedBookList = BookResource.getBookList();
-    
-    
-        
-    public static ConcurrentHashMap<String, Cart> getCartItemsList()
-    {
-        return cartListForCustomersCartItems;
-    }
-    
+    private static final ConcurrentHashMap<String, Books> extractedBookList = DefaultDataStore.getBookList();
+    private static final ConcurrentHashMap<String, Customers> extractedCustomerList = DefaultDataStore.getCustomerList();
+    private static final ConcurrentHashMap<String, Cart> extractedCartItemList = DefaultDataStore.getCartItemsList();
+
     
     
     @GET
@@ -57,7 +52,7 @@ public class CartResource
             return validationResponse;
         }
         
-        Cart customerCartDetails = BookstoreValidations.ValidateCartAndCustomer.validateCartExistence(customerId, cartListForCustomersCartItems);
+        Cart customerCartDetails = BookstoreValidations.ValidateCartAndCustomer.validateCartExistence(customerId, extractedCartItemList);
         if (customerCartDetails == null)
         {
             throw new CartNotFoundException("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId);
@@ -117,7 +112,7 @@ public class CartResource
         
         // Retrieve the existing cart for the customer if available.
         // Otherwise, create a new cart and associate it with the customerId.
-        Cart customerCartDetails = cartListForCustomersCartItems.computeIfAbsent(customerId, id -> 
+        Cart customerCartDetails = extractedCartItemList.computeIfAbsent(customerId, id -> 
         {
             Cart newCart = new Cart();
         
@@ -201,7 +196,7 @@ public class CartResource
             return Response.status(Response.Status.BAD_REQUEST).entity("VALID QUANTITY REQUIRED.").build();
         }
         
-        Cart customerCartDetails = BookstoreValidations.ValidateCartAndCustomer.validateCartExistence(customerId, cartListForCustomersCartItems);
+        Cart customerCartDetails = BookstoreValidations.ValidateCartAndCustomer.validateCartExistence(customerId, extractedCartItemList);
         if (customerCartDetails == null)
         {
             throw new CartNotFoundException("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId);
@@ -289,7 +284,7 @@ public class CartResource
             return validationResponse;
         }
 
-        Cart customerCartDetails = BookstoreValidations.ValidateCartAndCustomer.validateCartExistence(customerId, cartListForCustomersCartItems);
+        Cart customerCartDetails = BookstoreValidations.ValidateCartAndCustomer.validateCartExistence(customerId, extractedCartItemList);
         if (customerCartDetails == null)
         {
             throw new CartNotFoundException("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId);
@@ -339,13 +334,11 @@ public class CartResource
         boolean customerCartEmpty = customerCartDetails.getCartItemsList().isEmpty();
         if(customerCartEmpty)
         {
-            cartListForCustomersCartItems.remove(customerId);
+            extractedCartItemList.remove(customerId);
         }
         
         return Response.ok("CART ITEM DELETED. BOOK ID : " + customerId).build();   
 
     }
-    
-    
     
 }

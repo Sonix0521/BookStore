@@ -13,6 +13,7 @@ import com.bookstore.bookstore.model.CartItem;
 import com.bookstore.bookstore.model.Customers;
 import com.bookstore.bookstore.model.Orders;
 import com.bookstore.bookstore.utilities.BookstoreValidations;
+import com.bookstore.bookstore.utilities.DefaultDataStore;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,10 +35,10 @@ import javax.ws.rs.core.Response;
 public class OrderResource 
 {
     
-    private static ConcurrentHashMap<String, Orders> customersOrdersList = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, Customers> extractedCustomerList = CustomerResource.getCustomerList();
-    private static final ConcurrentHashMap<String, Books> extractedBookList = BookResource.getBookList();
-    private static final ConcurrentHashMap<String, Cart> extractedCartItemsList = CartResource.getCartItemsList();
+    private static final ConcurrentHashMap<String, Books> extractedBookList = DefaultDataStore.getBookList();
+    private static final ConcurrentHashMap<String, Customers> extractedCustomerList = DefaultDataStore.getCustomerList();
+    private static final ConcurrentHashMap<String, Cart> extractedCartItemList = DefaultDataStore.getCartItemsList();
+    private static final ConcurrentHashMap<String, Orders> extractedOrderList = DefaultDataStore.getOrdersList();
     
     
     
@@ -54,7 +55,7 @@ public class OrderResource
         
         // Add orders related to the customer to this temp array to display.
         ArrayList<Orders> customerRelatedOrders = new ArrayList<>();
-        for (Orders order : customersOrdersList.values()) 
+        for (Orders order : extractedOrderList.values()) 
         {
             if (order.getCustomerId().equals(customerId))
             {
@@ -65,13 +66,13 @@ public class OrderResource
         if (customerRelatedOrders.isEmpty())
         {
             throw new OrderNotFoundException("NO ORDERS FOUND FOR CUSTOMER ID : " + customerId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("NO ORDER FOUND FOR CUSTOMER ID : " + customerId).build();
         }
 
         return Response.ok(customerRelatedOrders).build();
         
     }
     
+
     
     @GET
     @Path("/{orderId}")
@@ -84,7 +85,7 @@ public class OrderResource
             return validationResponse;
         }
         
-        for (Orders order : customersOrdersList.values()) 
+        for (Orders order : extractedOrderList.values()) 
         {
             if (order.getOrderId().equals(orderId) && order.getCustomerId().equals(customerId)) 
             {
@@ -93,9 +94,7 @@ public class OrderResource
         }
         
         throw new OrderNotFoundException("ORDER NOT FOUND FOR CUSTOMER ID : " + customerId + " ORDER ID : " + orderId);
-        // return Response.status(Response.Status.NOT_FOUND).entity("INVALID ORDER ID FOR CUSTOMER. CUSTOMER ID : " + customerId + " ORDER ID : " + orderId).build();
     }
-    
     
     
     
@@ -110,11 +109,10 @@ public class OrderResource
             return validationResponse;
         }
 
-        Cart cartDetails = extractedCartItemsList.get(customerId);
+        Cart cartDetails = extractedCartItemList.get(customerId);
         if (cartDetails == null || cartDetails.getCartItemsList().isEmpty()) 
         {
             throw new CartNotFoundException("CART NOT FOUND FOR CUSTOMER ID : " + customerId);
-            // return Response.status(Response.Status.BAD_REQUEST).entity("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId).build();
         }
 
         for (CartItem item : cartDetails.getCartItemsList()) 
@@ -123,7 +121,6 @@ public class OrderResource
             if (bookDetails == null || item.getBookQuantity() > bookDetails.getBookStockQuantity()) 
             {
                 throw new OutOfStockException("REQUESTED QUANTITY UNAVAILABLE. \nAVAILABLE STOCK : " + bookDetails.getBookStockQuantity());
-                // return Response.status(Response.Status.BAD_REQUEST).entity("INSUFFICIENT STOCK. BOOK ID : " + item.getBookId()).build();
             }
         }
 
@@ -135,11 +132,10 @@ public class OrderResource
             book.setBookStockQuantity(book.getBookStockQuantity() - item.getBookQuantity());
         }
 
-        customersOrdersList.put(order.getOrderId(), order);
-        extractedCartItemsList.remove(customerId);
+        extractedOrderList.put(order.getOrderId(), order);
+        extractedCartItemList.remove(customerId);
 
         return Response.status(Response.Status.CREATED).entity(order).build();
     }
-    
     
 }
