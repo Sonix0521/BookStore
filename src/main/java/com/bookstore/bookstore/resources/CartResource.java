@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bookstore.bookstore.resources;
 
 import com.bookstore.bookstore.exceptions.BookNotFoundException;
@@ -13,9 +9,7 @@ import com.bookstore.bookstore.model.CartItem;
 import com.bookstore.bookstore.model.Customers;
 import com.bookstore.bookstore.utilities.BookstoreValidations;
 import com.bookstore.bookstore.utilities.DefaultDataStore;
-
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;

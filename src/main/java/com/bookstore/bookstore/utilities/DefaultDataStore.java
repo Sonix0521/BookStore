@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bookstore.bookstore.utilities;
 
 import com.bookstore.bookstore.model.Authors;
@@ -9,7 +5,6 @@ import com.bookstore.bookstore.model.Books;
 import com.bookstore.bookstore.model.Cart;
 import com.bookstore.bookstore.model.Customers;
 import com.bookstore.bookstore.model.Orders;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,7 +47,7 @@ public class DefaultDataStore
     
     public static void addDefaultAuthorsToList(Map<String, Authors> defaultAuthorList, Map<String, Books> defaultBookList)
     {
-        
+
         Authors author1 = new Authors("F. Scott Fitzgerald", "American novelist best known for 'The Great Gatsby', a classic of 20th-century literature.");
         Authors author2 = new Authors("George Orwell", "English novelist famous for his dystopian works '1984' and 'Animal Farm'.");
         Authors author3 = new Authors("Harper Lee", "American author best known for 'To Kill a Mockingbird', a novel that explores racial injustice in the Deep South.");
@@ -71,8 +66,11 @@ public class DefaultDataStore
         
     }
     
+
+
     public static void addDefaultCustomersToList(Map<String, Customers> defaultCustomerList)
     {
+
        Customers customer1 = new Customers("Michael Johnson", "michael.johnson@example.com", "MJ987");
        Customers customer2 = new Customers("Emma Williams", "emma.williams@example.com", "EW456");
        Customers customer3 = new Customers("James Smith", "james.smith@example.com", "JS123");
@@ -80,10 +78,14 @@ public class DefaultDataStore
        defaultCustomerList.put(customer1.getCustomerId(), customer1);
        defaultCustomerList.put(customer2.getCustomerId(), customer2);
        defaultCustomerList.put(customer3.getCustomerId(), customer3);
+
     }
     
+
+
     public static void addDefaultBooksToList(Map<String, Books> defaultBookList, Map<String, Authors> defaultAuthorList)
     {   
+
         Authors author1 = new Authors("Sir Arthur Conan Doyle", "Scottish writer best known for creating the legendary detective Sherlock Holmes.");
         Authors author2 = new Authors("J.K. Rowling", "British author famous for the Harry Potter series, which has captivated millions worldwide.");
 
@@ -95,6 +97,7 @@ public class DefaultDataStore
 
         defaultBookList.put(book1.getBookId(), book1);
         defaultBookList.put(book2.getBookId(), book2);
+
     }
     
 }

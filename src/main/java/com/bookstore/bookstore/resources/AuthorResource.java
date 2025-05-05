@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bookstore.bookstore.resources;
 
 import com.bookstore.bookstore.exceptions.AuthorNotFoundException;
@@ -13,7 +9,6 @@ import com.bookstore.bookstore.utilities.ApiResponse;
 import com.bookstore.bookstore.utilities.BookstoreValidations;
 import com.bookstore.bookstore.utilities.DefaultDataStore;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
@@ -55,8 +50,7 @@ public class AuthorResource
     {
         if (extractedAuthorList.isEmpty())
         {
-            throw new AuthorNotFoundException("NO AUTHORS FOUND");
-            // return Response.status(Response.Status.NOT_FOUND).entity("NO AUTHORS FOUND").build();
+            throw new AuthorNotFoundException("NO AUTHORS AVAILABLE.");
         }
         
         ArrayList<Authors> allAuthors = new ArrayList<>(extractedAuthorList.values());
@@ -80,7 +74,6 @@ public class AuthorResource
         else
         {
             throw new AuthorNotFoundException("AUTHOR NOT FOUND. \nINVALID AUTHOR ID : " + authorId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("AUTHOR NOT FOUND. \nINVALID AUTHOR ID : " + authorId).build();
         }
     }
     
@@ -96,7 +89,6 @@ public class AuthorResource
         if (author == null) 
         {
             throw new AuthorNotFoundException("AUTHOR NOT FOUND. INVALID AUTHOR ID: " + authorId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("AUTHOR NOT FOUND. INVALID AUTHOR ID: " + authorId).build();
         }
 
         ArrayList<Books> authorsBooks = extractedBookList.values().stream().filter(book -> book.getBookAuthorId().equals(authorId)).collect(Collectors.toCollection(ArrayList::new)); // Explicitly collecting as ArrayList
@@ -104,7 +96,6 @@ public class AuthorResource
         if (authorsBooks.isEmpty()) 
         {
             throw new BookNotFoundException("NO BOOKS FOUND FOR AUTHOR ID: " + authorId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("NO BOOKS FOUND FOR AUTHOR ID: " + authorId).build();
         }
 
         return Response.ok(authorsBooks).build();
@@ -130,11 +121,9 @@ public class AuthorResource
             return duplicateResponse;
         }
         
-        String newAuthorId = UUID.randomUUID().toString().substring(0,8);
+        newAuthorDetails.setAuthorId();
         
-        newAuthorDetails.setAuthorId(newAuthorId);
-        
-        extractedAuthorList.put(newAuthorId, newAuthorDetails);
+        extractedAuthorList.put(newAuthorDetails.getAuthorId(), newAuthorDetails);
         
         ApiResponse response = new ApiResponse("NEW AUTHOR SUCCESSFULLY REGISTERED", newAuthorDetails);
         return Response.status(Response.Status.CREATED).entity(response).build();
@@ -153,7 +142,6 @@ public class AuthorResource
         if(existingAuthorDetails == null)
         {
             throw new AuthorNotFoundException("AUTHOR NOT FOUND. INVALID AUTHOR ID: " + authorId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("AUTHOR NOT FOUND. \nINVALID AUTHOR ID : " + authorId).build();
         }
         
         
@@ -169,7 +157,6 @@ public class AuthorResource
             String existingErrorMessage = (String) duplicateResponse.getEntity();
 
             throw new InvalidInputException(existingErrorMessage + "\nPLEASE CHANGE VALUES TO UPDATE");
-            // return Response.status(Response.Status.CONFLICT).entity(existingErrorMessage + "\nPLEASE CHANGE VALUES TO UPDATE").build();
         }
         
         StringBuilder responseMessage = BookstoreValidations.AuthorValidator.responseMessageForUpdates(updatedAuthorDetails, existingAuthorDetails);
@@ -191,8 +178,24 @@ public class AuthorResource
         }
         else
         {
-            throw new AuthorNotFoundException("AUTHOR ID : " + authorId + " NOT FOUND");
-            // return Response.status(Response.Status.NOT_FOUND).entity("AUTHOR ID : " + authorId + " NOT FOUND").build();
+            throw new AuthorNotFoundException("AUTHOR NOT FOUND. \nINVALID AUTHOR ID : " + authorId);
+        }
+    }
+
+
+
+    @DELETE
+    @Path("/DELETE-ALL-EXISTING-AUTHORS")
+    public Response deleteAllAuthors()
+    {
+        if (!extractedAuthorList.isEmpty())
+        {
+            extractedAuthorList.clear();
+            return Response.status(Response.Status.OK).entity("ALL AUTHORS SUCCESSFULLY DELETED.").build();
+        }
+        else
+        {
+            throw new AuthorNotFoundException("NO AUTHORS AVAILABLE.");
         }
     }
     

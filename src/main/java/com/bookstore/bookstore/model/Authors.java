@@ -22,9 +22,9 @@ public class Authors
         this.authorBiography = biography;
     }
 
-    public void setAuthorId(String authorId) 
+    public void setAuthorId() 
     {
-        this.authorId = authorId;
+        this.authorId = UUID.randomUUID().toString().substring(0,8);
     }
 
     public String getAuthorId() 
