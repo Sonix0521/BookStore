@@ -33,9 +33,9 @@ public class Books
         this.bookStockQuantity = stockQuantity;
     }
 
-    public void setBookId(String bookId) 
+    public void setBookId() 
     {
-        this.bookId = bookId;
+        this.bookId = UUID.randomUUID().toString().substring(0,8);
     }
     
     public String getBookId() 

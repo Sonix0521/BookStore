@@ -28,9 +28,9 @@ public class Customers
     
     public Customers() {}
     
-    public void setCustomerId(String customerId)
+    public void setCustomerId()
     {
-        this.customerId = customerId;
+        this.customerId = UUID.randomUUID().toString().substring(0,8);
     }
     
     public String getCustomerId() 

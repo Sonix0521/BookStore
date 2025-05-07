@@ -6,7 +6,6 @@ import com.bookstore.bookstore.model.Customers;
 import com.bookstore.bookstore.utilities.BookstoreValidations;
 import com.bookstore.bookstore.utilities.DefaultDataStore;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -92,11 +91,9 @@ public class CustomerResource
         }
        
         
-        String newCustomerId = UUID.randomUUID().toString().substring(0,8);
+        newCustomerDetails.setCustomerId();
         
-        newCustomerDetails.setCustomerId(newCustomerId);
-        
-        extractedCustomerList.put(newCustomerId, newCustomerDetails);
+        extractedCustomerList.put(newCustomerDetails.getCustomerId(), newCustomerDetails);
         
         ApiResponse response = new ApiResponse("NEW CUSTOMER SUCCESSFULLY REGISTERED", newCustomerDetails);
         return Response.status(Response.Status.CREATED).entity(response).build();

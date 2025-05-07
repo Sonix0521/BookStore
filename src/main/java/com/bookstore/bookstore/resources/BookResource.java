@@ -9,7 +9,6 @@ import com.bookstore.bookstore.utilities.ApiResponse;
 import com.bookstore.bookstore.utilities.BookstoreValidations;
 import com.bookstore.bookstore.utilities.DefaultDataStore;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -110,10 +109,9 @@ public class BookResource
         Authors authorDetails = extractedAuthorList.get(newAuthorId);
         newBookDetails.setBookAuthorName(authorDetails.getAuthorName());
         
-        String newBookId = UUID.randomUUID().toString().substring(0,8);
-        newBookDetails.setBookId(newBookId);
-        
-        extractedBookList.put(newBookId, newBookDetails);
+        newBookDetails.setBookId();
+
+        extractedBookList.put(newBookDetails.getBookAuthorId(), newBookDetails);
         
         ApiResponse response = new ApiResponse("NEW BOOK SUCCESSFULLY REGISTERED", newBookDetails);
         return Response.status(Response.Status.CREATED).entity(response).build();
