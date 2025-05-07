@@ -50,11 +50,11 @@ public class BookResource
     {
         if (extractedBookList.isEmpty())
         {
-            // return Response.status(Response.Status.NOT_FOUND).entity("NO BOOKS AVAILABLE.").build();
             throw new BookNotFoundException("NO BOOKS AVAILABLE.");
         }
         
         ArrayList<Books> allBooks = new ArrayList<>(extractedBookList.values());
+        
         return Response.ok(allBooks).build();
     }
     
@@ -75,7 +75,6 @@ public class BookResource
         else
         {
             throw new BookNotFoundException("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId).build();
         }
     }
     
@@ -89,7 +88,8 @@ public class BookResource
         
         Response validationResponse = BookstoreValidations.BookValidator.validateBookDetails(newBookDetails, null, "POST"); // Passing `null` for bookId in POST
 
-        if (validationResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+        if (validationResponse.getStatus() != Response.Status.OK.getStatusCode()) 
+        {
             return validationResponse; // If validation failed, return the Response with errors
         }
         
@@ -97,7 +97,6 @@ public class BookResource
         if(!extractedAuthorList.containsKey(newAuthorId))
         {
             throw new AuthorNotFoundException("AUTHOR NOT FOUND. INVALID AUTHOR ID : " + newAuthorId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("AUTHOR NOT FOUND. INVALID AUTHOR ID : " + newAuthorId).build();
         }
         
         Response duplicateResponse = BookstoreValidations.BookValidator.checkForDuplicateBook(newBookDetails, "POST");
@@ -108,13 +107,14 @@ public class BookResource
         
         Authors authorDetails = extractedAuthorList.get(newAuthorId);
         newBookDetails.setBookAuthorName(authorDetails.getAuthorName());
-        
+
         newBookDetails.setBookId();
 
         extractedBookList.put(newBookDetails.getBookAuthorId(), newBookDetails);
         
         ApiResponse response = new ApiResponse("NEW BOOK SUCCESSFULLY REGISTERED", newBookDetails);
-        return Response.status(Response.Status.CREATED).entity(response).build();
+
+        return Response.ok(response).build();
     }
     
     
@@ -130,7 +130,6 @@ public class BookResource
         if(existingBookDetails == null)
         {
             throw new BookNotFoundException("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId).build();
         }
         
         Response validationResponse = BookstoreValidations.BookValidator.validateBookDetails(toBeUpdatedBookDetails, existingBookDetails, "PUT"); // bookId is included
@@ -144,7 +143,6 @@ public class BookResource
             String existingErrorMessage = (String) duplicateResponse.getEntity();
 
             throw new InvalidInputException(existingErrorMessage + "\nPLEASE CHANGE VALUES TO UPDATE");
-            // return Response.status(Response.Status.CONFLICT).entity(existingErrorMessage + "\nPLEASE CHANGE VALUES TO UPDATE").build();
         }
         
         StringBuilder responseMessage = BookstoreValidations.BookValidator.generateUpdateMessage(toBeUpdatedBookDetails, existingBookDetails);
@@ -167,6 +165,23 @@ public class BookResource
         else
         {
             throw new BookNotFoundException("BOOK NOT FOUND. \nINVALID BOOK ID : " + bookId);
+        }
+    }
+
+
+
+    @DELETE
+    @Path("/DELETE-ALL/books")
+    public Response deleteAllBooks()
+    {
+        if (!extractedBookList.isEmpty())
+        {
+            extractedBookList.clear();
+            return Response.status(Response.Status.OK).entity("ALL BOOKS SUCCESSFULLY DELETED.").build();
+        }
+        else
+        {
+            throw new BookNotFoundException("DELETE-ALL REQUEST UNSUCCESSFUL. \nNO BOOKS AVAILABLE.");
         }
     }
     

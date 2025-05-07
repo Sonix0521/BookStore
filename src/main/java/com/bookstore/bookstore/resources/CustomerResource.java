@@ -47,6 +47,7 @@ public class CustomerResource
         }
         
         ArrayList<Customers> allCustomers = new ArrayList<>(extractedCustomerList.values());
+        
         return Response.ok(allCustomers).build();
     }
     
@@ -96,7 +97,9 @@ public class CustomerResource
         extractedCustomerList.put(newCustomerDetails.getCustomerId(), newCustomerDetails);
         
         ApiResponse response = new ApiResponse("NEW CUSTOMER SUCCESSFULLY REGISTERED", newCustomerDetails);
-        return Response.status(Response.Status.CREATED).entity(response).build();
+        
+        return Response.ok(response).build();
+
     }
     
     
@@ -132,6 +135,7 @@ public class CustomerResource
         ApiResponse response = new ApiResponse(responseMessage.toString(), existingAuthorDetails);
 
         return Response.ok(response).build();
+
     }
     
     
@@ -147,6 +151,23 @@ public class CustomerResource
         else
         {
             throw new CustomerNotFoundException("CUSTOMER NOT FOUND. \nINVALID CUSTOMER ID : " + customerId);
+        }
+    }
+
+
+
+    @DELETE
+    @Path("/DELETE-ALL/customers")
+    public Response deleteAllCustomers()
+    {
+        if (!extractedCustomerList.isEmpty())
+        {
+            extractedCustomerList.clear();
+            return Response.status(Response.Status.OK).entity("ALL CUSTOMERS SUCCESSFULLY DELETED.").build();
+        }
+        else
+        {
+            throw new CustomerNotFoundException("DELETE-ALL REQUEST UNSUCCESSFUL. \nNO CUSTOMERS AVAILABLE.");
         }
     }
         

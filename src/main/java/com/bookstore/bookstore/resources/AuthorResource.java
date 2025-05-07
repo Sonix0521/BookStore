@@ -54,6 +54,7 @@ public class AuthorResource
         }
         
         ArrayList<Authors> allAuthors = new ArrayList<>(extractedAuthorList.values());
+
         return Response.ok(allAuthors).build();
     }
     
@@ -126,7 +127,8 @@ public class AuthorResource
         extractedAuthorList.put(newAuthorDetails.getAuthorId(), newAuthorDetails);
         
         ApiResponse response = new ApiResponse("NEW AUTHOR SUCCESSFULLY REGISTERED", newAuthorDetails);
-        return Response.status(Response.Status.CREATED).entity(response).build();
+
+        return Response.ok(response).build();
     }
     
     
@@ -185,7 +187,7 @@ public class AuthorResource
 
 
     @DELETE
-    @Path("/DELETE-ALL-EXISTING-AUTHORS")
+    @Path("/DELETE-ALL/authors")
     public Response deleteAllAuthors()
     {
         if (!extractedAuthorList.isEmpty())
@@ -195,7 +197,7 @@ public class AuthorResource
         }
         else
         {
-            throw new AuthorNotFoundException("NO AUTHORS AVAILABLE.");
+            throw new AuthorNotFoundException("DELETE-ALL REQUEST UNSUCCESSFUL. \nNO AUTHORS AVAILABLE.");
         }
     }
     
