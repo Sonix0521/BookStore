@@ -321,7 +321,7 @@ public class CartResource
     }
     
 
-    
+
     @DELETE
     @Path("/DELETE-ALL/items")
     public Response deleteAllCartItems(@PathParam("customerId") String customerId)
