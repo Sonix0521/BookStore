@@ -50,7 +50,6 @@ public class CartResource
         if (customerCartDetails == null)
         {
             throw new CartNotFoundException("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId).build();
         }
         
         customerCartDetails.calculateTotalCartPrice();
@@ -91,8 +90,6 @@ public class CartResource
         if (bookDetails == null) 
         {
             throw new BookNotFoundException("BOOK NOT FOUND. INVALID BOOK ID : " + requestedBookId);
-            
-            // return Response.status(Response.Status.NOT_FOUND).entity("BOOK NOT FOUND. INVALID BOOK ID : " + requestedBookId).build();
         }
         
         // Check if the requested quantity is available in stock
@@ -100,8 +97,6 @@ public class CartResource
         if (requestedBookQuantity > availableBookQuantity ) 
         {
             throw new OutOfStockException("REQUESTED QUANTITY UNAVAILABLE. \nAVAILABLE STOCK : " + availableBookQuantity);
-
-            // return Response.status(Response.Status.BAD_REQUEST).entity("REQUESTED QUANTITY UNAVAILABLE. \nAVAILABLE STOCK : " + availableBookQuantity).build();
         }
         
         // Retrieve the existing cart for the customer if available.
@@ -194,7 +189,6 @@ public class CartResource
         if (customerCartDetails == null)
         {
             throw new CartNotFoundException("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId).build();
         }
         
         // Check if the item exists in the cart
@@ -211,7 +205,6 @@ public class CartResource
         if (existingBookItemInCart == null)
         {
             throw new BookNotFoundException("BOOK NOT FOUND IN CART. BOOK ID : " + bookId);
-            // return Response.status(Response.Status.NOT_FOUND).entity("BOOK NOT FOUND IN CART. BOOK ID : " + bookId).build();
         }
 
         Books bookDetails = extractedBookList.get(bookId);
@@ -228,8 +221,6 @@ public class CartResource
             if (stockRequired > availableBookQuantity) 
             {
                 throw new OutOfStockException("REQUESTED QUANTITY UNAVAILABLE. \nAVAILABLE STOCK : " + availableBookQuantity);
-
-                // return Response.status(Response.Status.BAD_REQUEST).entity("INSUFFICIENT STOCK.").build();
             }
 
             // Update stock when quantity is increased
@@ -262,7 +253,6 @@ public class CartResource
 
         return Response.status(Response.Status.OK).entity("ITEM UPDATED IN CART.\nBOOK TITLE: " + bookDetails.getBookTitle() + "\nNO.OF BOOKS: " + existingBookItemInCart.getBookQuantity() + "\nTOTAL PRICE: $" + totalPrice).build();
 
-        
     }
     
     
@@ -282,8 +272,6 @@ public class CartResource
         if (customerCartDetails == null)
         {
             throw new CartNotFoundException("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId);
-
-            // return Response.status(Response.Status.NOT_FOUND).entity("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId).build();
         }
         
         // Find the CartItem with matching bookId
@@ -300,8 +288,6 @@ public class CartResource
         if (itemToRemove == null) 
         {
             throw new BookNotFoundException("BOOK NOT FOUND IN CART. BOOK ID : " + bookId);
-
-            // return Response.status(Response.Status.NOT_FOUND).entity("BOOK NOT FOUND IN CART. BOOK ID: " + bookId).build();
         }
 
         // Update the book stock
@@ -324,7 +310,6 @@ public class CartResource
         // Update total price of the cart
         customerCartDetails.setTotalCartPrice(cartTotalPrice);
         
-        
         boolean customerCartEmpty = customerCartDetails.getCartItemsList().isEmpty();
         if(customerCartEmpty)
         {
@@ -333,6 +318,42 @@ public class CartResource
         
         return Response.ok("CART ITEM DELETED. BOOK ID : " + customerId).build();   
 
+    }
+    
+
+    
+    @DELETE
+    @Path("/DELETE-ALL/items")
+    public Response deleteAllCartItems(@PathParam("customerId") String customerId)
+    {
+        Response validationResponse = BookstoreValidations.ValidateCartAndCustomer.validateCustomerId(customerId, extractedCustomerList);
+        if (validationResponse != null) 
+        {
+            return validationResponse;
+        }
+        
+        Cart customerCartDetails = BookstoreValidations.ValidateCartAndCustomer.validateCartExistence(customerId, extractedCartItemList);
+        if (customerCartDetails == null)
+        {
+            throw new CartNotFoundException("CART DOESN'T EXIST FOR CUSTOMER ID : " + customerId);
+        }
+        
+        // Update stock for all items in the cart
+        for (CartItem item : customerCartDetails.getCartItemsList()) 
+        {
+            Books bookDetails = extractedBookList.get(item.getBookId());
+            if (bookDetails != null) 
+            {
+                int updatedStock = bookDetails.getBookStockQuantity() + item.getBookQuantity();
+                bookDetails.setBookStockQuantity(updatedStock);
+            }
+        }
+        
+        customerCartDetails.getCartItemsList().clear();
+        
+        extractedCartItemList.remove(customerId);
+        
+        return Response.ok("ALL CART ITEMS DELETED.").build();   
     }
     
 }
