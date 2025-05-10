@@ -33,9 +33,16 @@ public class Books
         this.bookStockQuantity = stockQuantity;
     }
 
-    public void setBookId() 
+    public String generateAndSaveBookId() 
     {
-        this.bookId = UUID.randomUUID().toString().substring(0,8);
+        String bookId = UUID.randomUUID().toString().substring(0,8);
+        setBookId(bookId);
+        return this.bookId;
+    }
+
+    public void setBookId(String bookId) 
+    {
+        this.bookId = bookId;
     }
     
     public String getBookId() 

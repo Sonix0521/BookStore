@@ -23,7 +23,6 @@ com\bookstore\bookstore\exceptions\InvalidInputException.class
 com\bookstore\bookstore\exceptions\ErrorResponse.class
 com\bookstore\bookstore\exceptions\OutOfStockException.class
 com\bookstore\bookstore\exceptions\CartNotFoundExceptionMapper.class
-com\bookstore\bookstore\utilities\BookstoreValidations$CartResourceValidator.class
 com\bookstore\bookstore\exceptions\CartNotFoundException.class
 com\bookstore\bookstore\utilities\ApiResponse.class
 com\bookstore\bookstore\model\Orders.class

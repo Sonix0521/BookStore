@@ -108,10 +108,10 @@ public class BookResource
         Authors authorDetails = extractedAuthorList.get(newAuthorId);
         newBookDetails.setBookAuthorName(authorDetails.getAuthorName());
 
-        newBookDetails.setBookId();
-
-        extractedBookList.put(newBookDetails.getBookAuthorId(), newBookDetails);
+        newBookDetails.generateAndSaveBookId();
         
+        extractedBookList.put(newBookDetails.getBookId(), newBookDetails); 
+
         ApiResponse response = new ApiResponse("NEW BOOK SUCCESSFULLY REGISTERED", newBookDetails);
 
         return Response.ok(response).build();
