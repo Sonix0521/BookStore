@@ -327,41 +327,48 @@ public class BookstoreValidations
 
         
         
-        public static Response checkForDuplicateBook(Books bookDetails, String method)
+        public static Response checkForDuplicateBook(Books bookDetails, String method) 
         {
-
             boolean isPost = "POST".equalsIgnoreCase(method);
-
-            for(Books existingBooks : extractedBookList.values())
+        
+            for (Books existingBooks : extractedBookList.values()) 
             {
-                // Check for duplicate values based on title, ISBN, and published year
-                boolean isDuplicate =   ( existingBooks.getBookTitle().equalsIgnoreCase(bookDetails.getBookTitle()) ) &&
-                                        ( existingBooks.getBookISBN().equals(bookDetails.getBookISBN()) ) &&
-                                          existingBooks.getBookPublishedYear() == bookDetails.getBookPublishedYear();
-
-                if(isDuplicate)
+        
+                boolean isSameBook = !isPost && existingBooks.getBookId().equals(bookDetails.getBookId());
+                
+                // Skip the same book during PUT
+                if (isSameBook) continue;
+        
+                // 1. Check for ISBN conflict
+                if (existingBooks.getBookISBN().equalsIgnoreCase(bookDetails.getBookISBN()))
                 {
-                    // Method : PUT ---> This block will get executed
-                    // Skip the book being updated to allow changes without making it as a duplicate
-                    if(!isPost && existingBooks.getBookAuthorId().equals(bookDetails.getBookAuthorId()))
+                    // If other fields differ but ISBN is same — ISBN conflict
+                    boolean sameTitle = existingBooks.getBookTitle().equalsIgnoreCase(bookDetails.getBookTitle());
+                    boolean sameYear = existingBooks.getBookPublishedYear() == bookDetails.getBookPublishedYear();
+                    boolean sameAuthor = existingBooks.getBookAuthorId().equals(bookDetails.getBookAuthorId());
+        
+                    // Full duplicate
+                    if (sameTitle && sameYear && sameAuthor)
                     {
-                        continue;
-                    }         
-
-
-                    if ( !bookDetails.getBookAuthorId().equals(existingBooks.getBookAuthorId()) )
-                    {
-                        return Response.status(Response.Status.CONFLICT).entity("BOOK ALREADY EXISTS WITH A DIFFERENT AUTHOR.\nBOOK ID : " + existingBooks.getBookId() + "\nAUTHOR ID : " + existingBooks.getBookAuthorId()).build();
+                        return Response.status(Response.Status.CONFLICT).entity("BOOK ALREADY EXISTS UNDER SAME AUTHOR.\nBOOK ID : " + existingBooks.getBookId()).build();
                     }
-
-
-                    return Response.status(Response.Status.CONFLICT).entity("BOOK ALREADY EXISTS UNDER SAME AUTHOR. \nBOOK ID : " + existingBooks.getBookId()).build();
-
+        
+                    // Duplicate ISBN under different author
+                    if (!sameAuthor && sameTitle && sameYear) 
+                    {
+                        return Response.status(Response.Status.CONFLICT).entity("BOOK ALREADY EXISTS WITH A DIFFERENT AUTHOR.\nBOOK ID : " + existingBooks.getBookId() +"\nAUTHOR ID : " + existingBooks.getBookAuthorId()).build();
+                    }
+        
+                    // ISBN used for a different book (title/year mismatch)
+                    if (!sameTitle || !sameYear) 
+                    {
+                        return Response.status(Response.Status.CONFLICT).entity("BOOK ISBN ALREADY EXISTS.\nBOOK ID : " + existingBooks.getBookId()).build();
+                    }
                 }
-
             }
+        
             return null;
-        }
+        }        
         
     }
     
